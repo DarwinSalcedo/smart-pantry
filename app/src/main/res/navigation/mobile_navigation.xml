@@ -7,9 +7,25 @@
 
     <fragment
         android:id="@+id/navigation_shopping_list"
-        android:name="com.smart.pantry.ui.shopping_list.ShoppingList"
+        android:name="com.smart.pantry.ui.shopping_list.list.ShoppingListFragment"
         android:label="@string/title_shopping_list"
-        tools:layout="@layout/fragment_shopping_list" />
+        tools:layout="@layout/fragment_shopping_list" >
+        <action
+            android:id="@+id/action_navigation_shopping_list_to_navigation_save_shopping_list"
+            app:destination="@id/navigation_save_shopping_list" />
+        <action
+            android:id="@+id/action_navigation_shopping_list_to_navigation_pantry"
+            app:destination="@id/navigation_pantry" />
+        <action
+            android:id="@+id/action_navigation_shopping_list_to_navigation_smart_nutrition"
+            app:destination="@id/navigation_smart_nutrition" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/navigation_save_shopping_list"
+        android:name="com.smart.pantry.ui.shopping_list.save.SaveShoppingListFragment"
+        android:label="@string/title_shopping_list"
+        tools:layout="@layout/fragment_save_shopping_list" />
 
     <fragment
         android:id="@+id/navigation_pantry"

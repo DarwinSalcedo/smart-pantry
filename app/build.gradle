@@ -14,7 +14,7 @@ android {
         targetSdk 32
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -111,4 +111,14 @@ dependencies {
     // Kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlinVersion"
     implementation "androidx.fragment:fragment-ktx:$fragmentVersion"
+
+
+    //Koin
+    implementation "io.insert-koin:koin-android:$koinVersion"
+    testImplementation "io.insert-koin:koin-test:$koinVersion"
+    androidTestImplementation("io.insert-koin:koin-test:$koinVersion")
+
+
+    implementation "androidx.multidex:multidex:$multidex_version"
+    implementation 'com.google.code.gson:gson:2.8.9'
 }

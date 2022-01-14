@@ -1,90 +1,86 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <data>
-
-        <import type="android.view.View" />
-
-        <import type="androidx.core.content.ContextCompat" />
-
-
+            <variable
+                name="viewModel"
+                type="com.smart.pantry.ui.shopping_list.list.ShoppingListViewModel" />
     </data>
-
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="60dp">
 
-
-        <com.smart.pantry.ScrollChildSwipeRefreshLayout
+        <com.smart.pantry.custom.ScrollChildSwipeRefreshLayout
             android:id="@+id/refresh_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:refreshing="@{viewModel.showLoading.booleanValue()}">
 
-            <RelativeLayout
-                android:id="@+id/tasks_container_layout"
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/shopping_list_container_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clickable="true"
-                android:orientation="vertical">
+                android:layout_height="match_parent">
 
-                <LinearLayout
-                    android:id="@+id/tasks_linear_layout"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/shopping_list_reciclerView"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/filtering_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_marginTop="@dimen/activity_vertical_margin"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginBottom="@dimen/activity_vertical_margin"
-                        android:gravity="center_vertical"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/tasks_list"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-                </LinearLayout>
+                    android:layout_height="0dp"
+                    android:liveData="@{viewModel.shoppingListResult}"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
-                    android:id="@+id/no_tasks_layout"
+                    android:id="@+id/no_result_shopping_list_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:orientation="vertical">
+                    android:fadeVisible="@{viewModel.showNoData.booleanValue()}"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
-                        android:id="@+id/no_tasks_icon"
+                        android:id="@+id/no_shopping_list_icon"
                         android:layout_width="96dp"
                         android:layout_height="96dp"
-                        android:layout_gravity="center" />
+                        android:layout_gravity="center"
+                        android:drawableTop="@drawable/ic_dashboard_black_24dp" />
 
                     <TextView
                         android:id="@+id/no_tasks_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:layout_marginBottom="10dp" />
+                        android:layout_marginBottom="10dp"
+                        android:text="No data" />
                 </LinearLayout>
-            </RelativeLayout>
 
-        </com.smart.pantry.ScrollChildSwipeRefreshLayout>
+
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+        </com.smart.pantry.custom.ScrollChildSwipeRefreshLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/add_task_fab"
+            android:id="@+id/add_shopping_list_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:fabSize="normal"
-            app:layout_anchor="@id/refresh_layout"
-            app:layout_anchorGravity="bottom|right|end" />
+            android:src="@drawable/ic_add_24"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="bottom|right"
+            app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+            />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
 
