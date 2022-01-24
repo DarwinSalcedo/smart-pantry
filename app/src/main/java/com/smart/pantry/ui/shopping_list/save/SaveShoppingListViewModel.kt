@@ -1,14 +1,12 @@
 package com.smart.pantry.ui.shopping_list.save
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.smart.pantry.R
 import com.smart.pantry.base.BaseViewModel
 import com.smart.pantry.base.NavigationCommand
 import com.smart.pantry.data.ShoppingListDataSource
 import com.smart.pantry.data.dto.ShoppingList
-import com.smart.pantry.ui.shopping_list.list.ShoppingListDataItem
 import kotlinx.coroutines.launch
 
 class SaveShoppingListViewModel(val app: Application, val dataSource: ShoppingListDataSource) :
@@ -30,7 +28,7 @@ class SaveShoppingListViewModel(val app: Application, val dataSource: ShoppingLi
 
     private fun validateEnteredData(shoppingList: ShoppingList): Boolean {
         if (shoppingList.name.isNullOrEmpty()) {
-            showSnackBarInt.value = R.string.err_enter_title
+            showSnackBarInt.value = R.string.error_enter_title
             return false
         }
         return true

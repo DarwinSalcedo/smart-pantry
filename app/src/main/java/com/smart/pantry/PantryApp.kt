@@ -4,6 +4,8 @@ import androidx.multidex.MultiDexApplication
 import com.smart.pantry.data.ShoppingListDataSource
 import com.smart.pantry.data.local.LocalDB
 import com.smart.pantry.data.local.ShoppingListLocalRepository
+import com.smart.pantry.ui.shopping_list.detail.DetailShoppingListViewModel
+import com.smart.pantry.ui.shopping_list.edit.EditShoppingListViewModel
 import com.smart.pantry.ui.shopping_list.list.ShoppingListViewModel
 import com.smart.pantry.ui.shopping_list.save.SaveShoppingListViewModel
 import org.koin.android.ext.koin.androidContext
@@ -20,20 +22,31 @@ class PantryApp : MultiDexApplication() {
          * use Koin Library as a service locator
          */
         val myModule = module {
-            viewModel {
+            single {
                 ShoppingListViewModel(
                     get(),
                     get() as ShoppingListDataSource
                 )
             }
-            //Declare singleton definitions to be later injected using by inject()
             single {
-                //This view model is declared singleton to be used across multiple fragments
+                EditShoppingListViewModel(
+                    get(),
+                    get() as ShoppingListDataSource
+                )
+            }
+            single {
                 SaveShoppingListViewModel(
                     get(),
                     get() as ShoppingListDataSource
                 )
             }
+            single {
+                DetailShoppingListViewModel(
+                    get(),
+                    get() as ShoppingListDataSource
+                )
+            }
+
             single { LocalDB.createShoppingListDao(this@PantryApp) }
             single { ShoppingListLocalRepository(get()) as ShoppingListDataSource }
 

@@ -9,7 +9,7 @@ import com.smart.pantry.data.dto.ShoppingList
 @Dao
 interface ShoppingListDao {
 
-    @Query("SELECT * FROM shopping_list")
+    @Query("SELECT * FROM shopping_list ORDER BY creation_date DESC ")
     fun getShoppingList(): List<ShoppingList>
 
 

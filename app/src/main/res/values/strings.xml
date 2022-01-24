@@ -4,8 +4,12 @@
     <string name="description_shopping_list">Create a shopping list</string>
     <string name="title_pantry">Pantry</string>
     <string name="title_smart_nutrition">Smart nutrition</string>
+    <string name="title_details_nutrition">Details nutrition</string>
     <string name="title_hint">Title</string>
     <string name="description_hint">Enter your shopping list description here.</string>
-    <string name="err_enter_title">Please enter title</string>
-    <string name="err_enter_description">Please enter description</string>
+    <string name="error_enter_title">Please enter title</string>
+    <string name="error_load_data">Error loading data</string>
+    <string name="no_data">No data</string>
+    <string name="delete">Delete</string>
+    <string name="title_edit_nutrition">Edit Shopping List</string>
 </resources>

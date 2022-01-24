@@ -1,24 +1,21 @@
-package com.smart.pantry.ui.shopping_list.save
+package com.smart.pantry.ui.shopping_list.edit
 
 import android.os.Bundle
-import android.view.MenuInflater
-import android.view.Menu
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.smart.pantry.R
 import com.smart.pantry.base.BaseFragment
-import com.smart.pantry.databinding.FragmentSaveShoppingListBinding
+import com.smart.pantry.databinding.FragmentEditShoppingListBinding
+import com.smart.pantry.ui.shopping_list.list.DATA_EXTRA
+import com.smart.pantry.ui.shopping_list.list.ShoppingListDataItem
 import org.koin.android.ext.android.inject
 
 
-class SaveShoppingListFragment : BaseFragment() {
+class EditShoppingListFragment : BaseFragment() {
 
-    override val _viewModel: SaveShoppingListViewModel by inject()
+    override val _viewModel: EditShoppingListViewModel by inject()
 
-    private lateinit var binding: FragmentSaveShoppingListBinding
+    private lateinit var binding: FragmentEditShoppingListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,11 +24,13 @@ class SaveShoppingListFragment : BaseFragment() {
         binding =
             DataBindingUtil.inflate(
                 inflater,
-                R.layout.fragment_save_shopping_list,
+                R.layout.fragment_edit_shopping_list,
                 container,
                 false
             )
         setHasOptionsMenu(true)
+        val data = arguments?.getSerializable(DATA_EXTRA) as ShoppingListDataItem
+        _viewModel.start(data)
         binding.viewModel = _viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
@@ -40,7 +39,7 @@ class SaveShoppingListFragment : BaseFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_shopping_list -> {
-                _viewModel.saveShoppingList(
+                _viewModel.editShoppingList(
                     binding.addShoppingListTittleText.text.toString(),
                     binding.addShoppingListDescriptionText.text.toString(),
                 )

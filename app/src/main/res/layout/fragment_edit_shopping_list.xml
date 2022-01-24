@@ -3,7 +3,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.smart.pantry.ui.shopping_list.save.SaveShoppingListViewModel" />
+            type="com.smart.pantry.ui.shopping_list.edit.EditShoppingListViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -35,6 +35,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/title_hint"
+                        android:text="@{viewModel.shoppingList.name}"
                         android:imeOptions="flagNoExtractUi"
                         android:maxLines="1"
                         android:textStyle="bold"
@@ -46,6 +47,7 @@
                         android:layout_height="150dp"
                         android:gravity="top"
                         android:hint="@string/description_hint"
+                        android:text="@{viewModel.shoppingList.description}"
                         android:imeOptions="flagNoExtractUi" />
 
                 </LinearLayout>

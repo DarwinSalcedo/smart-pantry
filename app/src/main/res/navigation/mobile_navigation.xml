@@ -9,17 +9,7 @@
         android:id="@+id/navigation_shopping_list"
         android:name="com.smart.pantry.ui.shopping_list.list.ShoppingListFragment"
         android:label="@string/title_shopping_list"
-        tools:layout="@layout/fragment_shopping_list" >
-        <action
-            android:id="@+id/action_navigation_shopping_list_to_navigation_save_shopping_list"
-            app:destination="@id/navigation_save_shopping_list" />
-        <action
-            android:id="@+id/action_navigation_shopping_list_to_navigation_pantry"
-            app:destination="@id/navigation_pantry" />
-        <action
-            android:id="@+id/action_navigation_shopping_list_to_navigation_smart_nutrition"
-            app:destination="@id/navigation_smart_nutrition" />
-    </fragment>
+        tools:layout="@layout/fragment_shopping_list" />
 
     <fragment
         android:id="@+id/navigation_save_shopping_list"
@@ -38,4 +28,16 @@
         android:name="com.smart.pantry.ui.smart_nutrition.SmartNutritionFragment"
         android:label="@string/title_smart_nutrition"
         tools:layout="@layout/fragment_smart_nutrition" />
+    <fragment
+        android:id="@+id/navigation_detail_shopping_list"
+        android:name="com.smart.pantry.ui.shopping_list.detail.DetailShoppingListFragment"
+        android:label="@string/title_details_nutrition"
+        tools:layout="@layout/fragment_detail_shopping_list" />
+
+    <fragment
+        android:id="@+id/navigation_edit_shopping_list"
+        android:name="com.smart.pantry.ui.shopping_list.edit.EditShoppingListFragment"
+        android:label="@string/title_edit_nutrition"
+        tools:layout="@layout/fragment_edit_shopping_list" />
+
 </navigation>

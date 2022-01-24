@@ -59,12 +59,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:layout_marginBottom="10dp"
-                        android:text="No data" />
+                        android:text="@string/no_data" />
                 </LinearLayout>
-
-
-
-
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

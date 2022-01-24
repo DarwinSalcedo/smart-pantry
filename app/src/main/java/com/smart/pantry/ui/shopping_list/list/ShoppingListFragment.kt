@@ -13,9 +13,9 @@ import com.smart.pantry.databinding.FragmentShoppingListBinding
 import com.smart.pantry.utils.setup
 import org.koin.android.ext.android.inject
 
-class ShoppingListFragment : BaseFragment() {
+const val DATA_EXTRA :String = "data_item"
 
-    private val TAG = ShoppingListFragment::class.java.simpleName
+class ShoppingListFragment : BaseFragment() {
 
     override val _viewModel: ShoppingListViewModel by inject()
 
@@ -38,10 +38,10 @@ class ShoppingListFragment : BaseFragment() {
 
         return binding.root
     }
-
+//todo Setting the fragment as the LifecycleOwner might cause memory leaks because views lives shorter than the Fragment. Consider using Fragment's view lifecycle
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = this.viewLifecycleOwner
 
         setupRecyclerView()
 
@@ -59,8 +59,11 @@ class ShoppingListFragment : BaseFragment() {
     }
 
     private fun setupRecyclerView() {
-        val adapter = ShoppingListAdapter {
-            Log.e(TAG," $it")
+        val adapter = ShoppingListAdapter { data ->
+            val bundle = Bundle().apply {this.putSerializable(DATA_EXTRA,data) }
+
+            Navigation.findNavController(binding.root)
+                .navigate(R.id.navigation_detail_shopping_list,bundle)
         }
         binding.shoppingListReciclerView.setup(adapter)
     }

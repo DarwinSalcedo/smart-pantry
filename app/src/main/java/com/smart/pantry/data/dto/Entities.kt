@@ -5,8 +5,8 @@ import java.util.*
 
 @Entity(tableName = "shopping_list")
 data class ShoppingList(
-    @ColumnInfo(name = "name") val name: String?,
-    @ColumnInfo(name = "description") val description: String?,
+    @ColumnInfo(name = "name") var name: String?,
+    @ColumnInfo(name = "description") var description: String?,
     @ColumnInfo(name = "isCompleted") val isCompleted: Boolean = false,
     @ColumnInfo(name = "creation_date") val creationDate: Date = Date(),
     @PrimaryKey @ColumnInfo(name = "entry_id") val id: String = UUID.randomUUID().toString()
