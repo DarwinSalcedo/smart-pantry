@@ -29,7 +29,6 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_shopping_list, R.id.navigation_pantry, R.id.navigation_smart_nutrition
             )
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
 

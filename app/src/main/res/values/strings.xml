@@ -12,4 +12,9 @@
     <string name="no_data">No data</string>
     <string name="delete">Delete</string>
     <string name="title_edit_nutrition">Edit Shopping List</string>
+    <string name="title_add_products">add products</string>
+    <string name="main_tittle_shopping_list">Your supermarket lists</string>
+    <string name="cancel">Cancel</string>
+    <string name="continu">Continue</string>
+    <string name="main_tittle_add_shopping_list">Create a new list</string>
 </resources>

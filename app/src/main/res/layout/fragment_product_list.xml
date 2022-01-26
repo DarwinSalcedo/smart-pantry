@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+<data>
+
+    <variable  name="viewModel"
+        type="com.smart.pantry.ui.product.ProductViewModel" />
+
+    <variable  name="itemView"
+        type="com.smart.pantry.ui.product.ItemViewModel" />
+
+</data>
+
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/padding_medium"
+    android:layout_marginBottom="60dp">
+
+    <com.smart.pantry.custom.ScrollChildSwipeRefreshLayout
+        android:id="@+id/refresh_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/shopping_list_container_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/titleShoppingList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{itemView.getShoppingListTitle}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/addedList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:liveProducts="@{itemView.listResult}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/titleShoppingList" />
+
+            <TextView
+                android:id="@+id/titleSuggestionList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="There are som products for your list"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addedList" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/suggestionList"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginRight="16dp"
+                android:liveProducts="@{viewModel.listResult}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/titleSuggestionList" />
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    </com.smart.pantry.custom.ScrollChildSwipeRefreshLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_shopping_list_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add_24"
+        android:layout_marginRight="10dp"
+        android:layout_gravity="bottom|right"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

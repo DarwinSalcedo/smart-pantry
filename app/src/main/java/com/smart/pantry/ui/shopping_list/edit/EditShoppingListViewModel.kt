@@ -18,15 +18,14 @@ class EditShoppingListViewModel(val app: Application, val dataSource: ShoppingLi
     private val _shoppingList = MutableLiveData<ShoppingList>()
     val shoppingList: LiveData<ShoppingList> = _shoppingList
 
-    fun editShoppingList(_name: String, _description: String) {
+    fun editShoppingList(_name: String) {
         _shoppingList.value?.apply {
-            this.name = _name
-            this.description = _description
+            this.title = _name
         }
-        if (validateEnteredData(_shoppingList.value?.name!!))
+        if (validateEnteredData(_shoppingList.value?.title!!))
             viewModelScope.launch {
                 dataSource.saveShoppingList(
-                    _shoppingList?.value!!
+                    _shoppingList.value!!
                 )
                 navigationCommand.value = NavigationCommand.Back
             }

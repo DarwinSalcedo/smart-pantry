@@ -6,14 +6,14 @@
     <data>
         <variable
             name="item"
-            type="com.smart.pantry.ui.shopping_list.list.ShoppingListDataItem" />
+            type="com.smart.pantry.ui.product.ProductDataItem" />
     </data>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/shoppingListCardView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/padding_medium"
+        android:layout_margin="@dimen/padding_small"
         android:fadeVisible="@{true}">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,7 +38,7 @@
                 android:id="@+id/description"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{item.creationDate.toString()}"
+                android:text="@{item.name}"
                 android:textSize="@dimen/text_size_small"
                 app:layout_constraintStart_toStartOf="@id/title"
                 app:layout_constraintTop_toBottomOf="@id/title"
@@ -49,7 +49,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@{item.creationDate.toString()}"
+                android:text="@{item.name}"
                 android:textSize="@dimen/text_size_small"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -59,7 +59,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@{item.isCompleted().toString()}"
+                android:text="@{item.name}"
                 android:textSize="@dimen/text_size_small"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

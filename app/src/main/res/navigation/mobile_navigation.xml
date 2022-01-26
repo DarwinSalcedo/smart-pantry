@@ -40,4 +40,10 @@
         android:label="@string/title_edit_nutrition"
         tools:layout="@layout/fragment_edit_shopping_list" />
 
+    <fragment
+        android:id="@+id/navigation_add_products"
+        android:name="com.smart.pantry.ui.product.ProductFragment"
+        android:label="@string/title_add_products"
+        tools:layout="@layout/fragment_product" />
+
 </navigation>

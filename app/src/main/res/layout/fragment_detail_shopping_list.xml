@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
     <data>
         <variable
@@ -11,38 +12,62 @@
         android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/padding_medium"
         android:layout_marginBottom="60dp">
 
-            <ScrollView
+        <com.smart.pantry.custom.ScrollChildSwipeRefreshLayout
+            android:id="@+id/refresh_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <TextView
+                    android:id="@+id/detail_shopping_list_tittle_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@{viewModel.shoppingList.name}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/detail_shopping_list_description_text"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:text="@{viewModel.shoppingList.creationDate.toGMTString()}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_shopping_list_tittle_text" />
+
+                <TextView
+                    android:id="@+id/titleDetailShoppingList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="You have to find these products"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_shopping_list_description_text" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/detailList"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="0dp"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"
+                    android:liveProducts="@{viewModel.listResult}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/titleDetailShoppingList" />
 
-                    <TextView
-                        android:id="@+id/detail_shopping_list_tittle_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                        android:textStyle="bold"
-                        android:text="@{viewModel.shoppingList.name}"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
-                    <TextView
-                        android:id="@+id/detail_shopping_list_description_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:gravity="top"
-                        android:text="@{viewModel.shoppingList.description}"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/detail_shopping_list_tittle_text" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
+        </com.smart.pantry.custom.ScrollChildSwipeRefreshLayout>
 
-            </ScrollView>
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/edit_shopping_list_fab"
             android:layout_width="wrap_content"

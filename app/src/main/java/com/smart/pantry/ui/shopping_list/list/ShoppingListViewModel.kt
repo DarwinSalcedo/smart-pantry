@@ -27,8 +27,7 @@ class ShoppingListViewModel(
                     val dataList = ArrayList<ShoppingListDataItem>()
                     dataList.addAll((result.data as List<ShoppingList>).map { data ->
                         ShoppingListDataItem(
-                            data.name,
-                            data.description,
+                            data.title,
                             data.isCompleted,
                             data.creationDate,
                             data.id

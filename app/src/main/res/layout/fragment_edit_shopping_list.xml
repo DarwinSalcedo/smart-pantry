@@ -35,20 +35,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/title_hint"
-                        android:text="@{viewModel.shoppingList.name}"
+                        android:text="@{viewModel.shoppingList.title}"
                         android:imeOptions="flagNoExtractUi"
                         android:maxLines="1"
                         android:textStyle="bold"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
-                    <EditText
-                        android:id="@+id/add_shopping_list_description_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="150dp"
-                        android:gravity="top"
-                        android:hint="@string/description_hint"
-                        android:text="@{viewModel.shoppingList.description}"
-                        android:imeOptions="flagNoExtractUi" />
 
                 </LinearLayout>
             </ScrollView>

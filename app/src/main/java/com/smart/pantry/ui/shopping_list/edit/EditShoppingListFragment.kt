@@ -40,8 +40,7 @@ class EditShoppingListFragment : BaseFragment() {
         when (item.itemId) {
             R.id.save_shopping_list -> {
                 _viewModel.editShoppingList(
-                    binding.addShoppingListTittleText.text.toString(),
-                    binding.addShoppingListDescriptionText.text.toString(),
+                    binding.addShoppingListTittleText.text.toString()
                 )
             }
         }

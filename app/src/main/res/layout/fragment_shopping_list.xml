@@ -11,6 +11,7 @@
         android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="@dimen/padding_medium"
         android:layout_marginBottom="60dp">
 
         <com.smart.pantry.custom.ScrollChildSwipeRefreshLayout
@@ -25,6 +26,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <TextView
+                    android:id="@+id/titleHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/main_tittle_shopping_list"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/shopping_list_reciclerView"
                     android:layout_width="match_parent"
@@ -33,7 +44,7 @@
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toBottomOf="@+id/titleHome" />
 
                 <LinearLayout
                     android:id="@+id/no_result_shopping_list_layout"

@@ -7,8 +7,10 @@ import androidx.navigation.fragment.findNavController
 import com.smart.pantry.R
 import com.smart.pantry.base.BaseFragment
 import com.smart.pantry.databinding.FragmentDetailShoppingListBinding
+import com.smart.pantry.ui.product.ProductItemRecyclerViewAdapter
 import com.smart.pantry.ui.shopping_list.list.DATA_EXTRA
 import com.smart.pantry.ui.shopping_list.list.ShoppingListDataItem
+import com.smart.pantry.utils.setup
 import org.koin.android.ext.android.inject
 
 
@@ -43,6 +45,8 @@ class DetailShoppingListFragment : BaseFragment() {
             findNavController().navigate(R.id.navigation_edit_shopping_list,bundle)
         }
 
+        setupRecyclerView()
+
         return binding.root
     }
 
@@ -61,4 +65,9 @@ class DetailShoppingListFragment : BaseFragment() {
         inflater.inflate(R.menu.delete_menu, menu)
     }
 
+    private fun setupRecyclerView() {
+        val adapter = ProductItemRecyclerViewAdapter { data ->
+        }
+        binding.detailList.setup(adapter)
+    }
 }

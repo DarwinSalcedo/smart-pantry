@@ -4,6 +4,8 @@ import android.view.View
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
+import com.smart.pantry.ui.product.ProductDataItem
+import com.smart.pantry.ui.product.ProductItemRecyclerViewAdapter
 
 
 object BindingAdapters {
@@ -23,6 +25,18 @@ object BindingAdapters {
         }
     }
 
+
+    @Suppress("UNCHECKED_CAST")
+    @BindingAdapter("android:liveProducts")
+    @JvmStatic
+    fun <T> setProductsRecyclerViewData(recyclerView: RecyclerView, items: LiveData<List<ProductDataItem>>?) {
+        items?.value?.let { itemList ->
+            (recyclerView.adapter as? ProductItemRecyclerViewAdapter)?.apply {
+                clear()
+                addData(itemList)
+            }
+        }
+    }
     /**
      * Use this binding adapter to show and hide the views using boolean variables
      */

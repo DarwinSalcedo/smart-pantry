@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.smart.pantry.ui.product.ProductItemRecyclerViewAdapter
 
 
 /**
@@ -21,20 +22,14 @@ fun <T> RecyclerView.setup(
     }
 }
 
-fun Fragment.setTitle(title: String) {
-    if (activity is AppCompatActivity) {
-        (activity as AppCompatActivity).supportActionBar?.title = title
+fun  RecyclerView.setup(
+    adapter: ProductItemRecyclerViewAdapter
+) {
+    this.apply {
+        layoutManager = LinearLayoutManager(this.context)
+        this.adapter = adapter
     }
 }
-
-fun Fragment.setDisplayHomeAsUpEnabled(bool: Boolean) {
-    if (activity is AppCompatActivity) {
-        (activity as AppCompatActivity).supportActionBar?.setDisplayHomeAsUpEnabled(
-            bool
-        )
-    }
-}
-
 
 //animate changing the view visibility
 fun View.fadeIn() {

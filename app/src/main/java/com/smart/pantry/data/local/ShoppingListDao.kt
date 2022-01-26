@@ -13,7 +13,7 @@ interface ShoppingListDao {
     fun getShoppingList(): List<ShoppingList>
 
 
-    @Query("SELECT * FROM shopping_list where entry_id = :id")
+    @Query("SELECT * FROM shopping_list where shopping_list_id = :id")
     fun getShoppingListById(id: String): ShoppingList?
 
 
