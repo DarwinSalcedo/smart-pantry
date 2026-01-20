@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">smart-pantry</string>
-    <string name="title_shopping_list">Shopping list</string>
-    <string name="description_shopping_list">Create a shopping list</string>
-    <string name="title_pantry">Pantry</string>
-    <string name="title_smart_nutrition">Smart nutrition</string>
-</resources>
