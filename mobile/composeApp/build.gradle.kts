@@ -32,6 +32,9 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             
+            // Koin Android
+            implementation(libs.koin.android)
+            
             // SQLDelight Android Driver
             implementation(libs.sqldelight.android)
         }
@@ -44,6 +47,10 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+            
+            // Koin
+            implementation(libs.koin.core)
+            implementation(libs.koin.compose)
             
             // Kotlinx Serialization
             implementation(libs.kotlinx.serialization.json)
