@@ -1,0 +1,251 @@
+-- User table
+CREATE TABLE IF NOT EXISTS User (
+    id TEXT PRIMARY KEY NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL
+);
+
+-- Product table (global catalog)
+CREATE TABLE IF NOT EXISTS Product (
+    id TEXT PRIMARY KEY NOT NULL,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    defaultShelfLifeDays INTEGER NOT NULL,
+    barcode TEXT,
+    imageUrl TEXT,
+    nutritionInfo TEXT,
+    createdAt INTEGER NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_product_category ON Product(category);
+CREATE INDEX IF NOT EXISTS idx_product_barcode ON Product(barcode);
+
+-- PantryItem table (user's inventory)
+CREATE TABLE IF NOT EXISTS PantryItem (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    productId TEXT NOT NULL,
+    productName TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    unit TEXT NOT NULL,
+    location TEXT NOT NULL CHECK(location IN ('FRIDGE', 'PANTRY', 'FREEZER')),
+    purchaseDate INTEGER NOT NULL,
+    expirationDate INTEGER NOT NULL,
+    notes TEXT,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING' CHECK(syncStatus IN ('SYNCED', 'PENDING', 'ERROR')),
+    FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE,
+    FOREIGN KEY (productId) REFERENCES Product(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_pantry_user ON PantryItem(userId);
+CREATE INDEX IF NOT EXISTS idx_pantry_location ON PantryItem(location);
+CREATE INDEX IF NOT EXISTS idx_pantry_expiration ON PantryItem(expirationDate);
+CREATE INDEX IF NOT EXISTS idx_pantry_sync ON PantryItem(syncStatus);
+
+-- NutritionLog table
+CREATE TABLE IF NOT EXISTS NutritionLog (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    mealDate INTEGER NOT NULL,
+    mealType TEXT NOT NULL CHECK(mealType IN ('BREAKFAST', 'LUNCH', 'DINNER', 'SNACK')),
+    calories INTEGER NOT NULL,
+    proteinG REAL NOT NULL,
+    carbsG REAL NOT NULL,
+    fatG REAL NOT NULL,
+    imageUrl TEXT,
+    notes TEXT,
+    createdAt INTEGER NOT NULL,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING' CHECK(syncStatus IN ('SYNCED', 'PENDING', 'ERROR')),
+    FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_nutrition_user ON NutritionLog(userId);
+CREATE INDEX IF NOT EXISTS idx_nutrition_date ON NutritionLog(mealDate);
+CREATE INDEX IF NOT EXISTS idx_nutrition_sync ON NutritionLog(syncStatus);
+
+-- Receipt table
+CREATE TABLE IF NOT EXISTS Receipt (
+    id TEXT PRIMARY KEY NOT NULL,
+    userId TEXT NOT NULL,
+    imageUrl TEXT NOT NULL,
+    scanDate INTEGER NOT NULL,
+    processed INTEGER NOT NULL DEFAULT 0,
+    geminiResponse TEXT,
+    createdAt INTEGER NOT NULL,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING' CHECK(syncStatus IN ('SYNCED', 'PENDING', 'ERROR')),
+    FOREIGN KEY (userId) REFERENCES User(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_receipt_user ON Receipt(userId);
+CREATE INDEX IF NOT EXISTS idx_receipt_processed ON Receipt(processed);
+CREATE INDEX IF NOT EXISTS idx_receipt_sync ON Receipt(syncStatus);
+
+-- PendingSync table (queue for offline operations)
+CREATE TABLE IF NOT EXISTS PendingSync (
+    id TEXT PRIMARY KEY NOT NULL,
+    entityType TEXT NOT NULL,
+    entityId TEXT NOT NULL,
+    operation TEXT NOT NULL CHECK(operation IN ('CREATE', 'UPDATE', 'DELETE')),
+    payload TEXT NOT NULL,
+    createdAt INTEGER NOT NULL,
+    retryCount INTEGER NOT NULL DEFAULT 0,
+    lastError TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_pending_sync_created ON PendingSync(createdAt);
+CREATE INDEX IF NOT EXISTS idx_pending_sync_entity ON PendingSync(entityType, entityId);
+
+-- Queries for User
+selectUserById:
+SELECT * FROM User WHERE id = ?;
+
+selectUserByEmail:
+SELECT * FROM User WHERE email = ?;
+
+insertUser:
+INSERT OR REPLACE INTO User(id, email, name, createdAt, updatedAt)
+VALUES (?, ?, ?, ?, ?);
+
+deleteUser:
+DELETE FROM User WHERE id = ?;
+
+-- Queries for Product
+selectAllProducts:
+SELECT * FROM Product ORDER BY name ASC;
+
+selectProductById:
+SELECT * FROM Product WHERE id = ?;
+
+selectProductsByCategory:
+SELECT * FROM Product WHERE category = ? ORDER BY name ASC;
+
+selectProductByBarcode:
+SELECT * FROM Product WHERE barcode = ?;
+
+insertProduct:
+INSERT OR REPLACE INTO Product(id, name, category, defaultShelfLifeDays, barcode, imageUrl, nutritionInfo, createdAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+deleteProduct:
+DELETE FROM Product WHERE id = ?;
+
+-- Queries for PantryItem
+selectAllPantryItems:
+SELECT * FROM PantryItem WHERE userId = ? ORDER BY expirationDate ASC;
+
+selectPantryItemById:
+SELECT * FROM PantryItem WHERE id = ?;
+
+selectPantryItemsByLocation:
+SELECT * FROM PantryItem WHERE userId = ? AND location = ? ORDER BY expirationDate ASC;
+
+selectExpiringItems:
+SELECT * FROM PantryItem 
+WHERE userId = ? AND expirationDate <= ? 
+ORDER BY expirationDate ASC;
+
+selectPendingSyncItems:
+SELECT * FROM PantryItem WHERE syncStatus = 'PENDING' OR syncStatus = 'ERROR';
+
+insertPantryItem:
+INSERT OR REPLACE INTO PantryItem(
+    id, userId, productId, productName, quantity, unit, location,
+    purchaseDate, expirationDate, notes, createdAt, updatedAt, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updatePantryItemQuantity:
+UPDATE PantryItem SET quantity = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE id = ?;
+
+updatePantryItemSyncStatus:
+UPDATE PantryItem SET syncStatus = ? WHERE id = ?;
+
+deletePantryItem:
+DELETE FROM PantryItem WHERE id = ?;
+
+-- Queries for NutritionLog
+selectAllNutritionLogs:
+SELECT * FROM NutritionLog WHERE userId = ? ORDER BY mealDate DESC, createdAt DESC;
+
+selectNutritionLogById:
+SELECT * FROM NutritionLog WHERE id = ?;
+
+selectNutritionLogsByDate:
+SELECT * FROM NutritionLog WHERE userId = ? AND mealDate = ? ORDER BY createdAt ASC;
+
+selectNutritionLogsByDateRange:
+SELECT * FROM NutritionLog 
+WHERE userId = ? AND mealDate BETWEEN ? AND ? 
+ORDER BY mealDate DESC, createdAt DESC;
+
+selectDailyTotals:
+SELECT 
+    mealDate,
+    SUM(calories) AS totalCalories,
+    SUM(proteinG) AS totalProtein,
+    SUM(carbsG) AS totalCarbs,
+    SUM(fatG) AS totalFat
+FROM NutritionLog 
+WHERE userId = ? AND mealDate BETWEEN ? AND ?
+GROUP BY mealDate
+ORDER BY mealDate DESC;
+
+insertNutritionLog:
+INSERT OR REPLACE INTO NutritionLog(
+    id, userId, mealDate, mealType, calories, proteinG, carbsG, fatG,
+    imageUrl, notes, createdAt, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateNutritionLogSyncStatus:
+UPDATE NutritionLog SET syncStatus = ? WHERE id = ?;
+
+deleteNutritionLog:
+DELETE FROM NutritionLog WHERE id = ?;
+
+-- Queries for Receipt
+selectAllReceipts:
+SELECT * FROM Receipt WHERE userId = ? ORDER BY scanDate DESC;
+
+selectReceiptById:
+SELECT * FROM Receipt WHERE id = ?;
+
+selectUnprocessedReceipts:
+SELECT * FROM Receipt WHERE userId = ? AND processed = 0 ORDER BY scanDate DESC;
+
+insertReceipt:
+INSERT OR REPLACE INTO Receipt(
+    id, userId, imageUrl, scanDate, processed, geminiResponse, createdAt, syncStatus
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updateReceiptProcessed:
+UPDATE Receipt SET processed = 1, geminiResponse = ?, syncStatus = 'PENDING' WHERE id = ?;
+
+updateReceiptSyncStatus:
+UPDATE Receipt SET syncStatus = ? WHERE id = ?;
+
+deleteReceipt:
+DELETE FROM Receipt WHERE id = ?;
+
+-- Queries for PendingSync
+selectAllPendingSync:
+SELECT * FROM PendingSync ORDER BY createdAt ASC;
+
+selectPendingSyncByEntity:
+SELECT * FROM PendingSync WHERE entityType = ? AND entityId = ?;
+
+insertPendingSync:
+INSERT OR REPLACE INTO PendingSync(
+    id, entityType, entityId, operation, payload, createdAt, retryCount, lastError
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+updatePendingSyncRetry:
+UPDATE PendingSync SET retryCount = retryCount + 1, lastError = ? WHERE id = ?;
+
+deletePendingSync:
+DELETE FROM PendingSync WHERE id = ?;
+
+deleteAllPendingSync:
+DELETE FROM PendingSync;
