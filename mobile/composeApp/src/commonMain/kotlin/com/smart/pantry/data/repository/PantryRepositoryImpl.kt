@@ -77,12 +77,22 @@ class PantryRepositoryImpl(
     override suspend fun addItem(item: PantryItem): Result<Unit> {
         return try {
             val now = System.currentTimeMillis()
+            
+            // First, save the product if it doesn't exist
+            val existingProduct = productDao.getProductById(item.product.id)
+            if (existingProduct == null) {
+                val productEntity = item.product.toEntity(createdAt = now)
+                productDao.insertProduct(productEntity)
+            }
+            
+            // Then save the pantry item
             val entity = item.toEntity(
                 createdAt = now,
                 updatedAt = now,
                 syncStatus = "PENDING"
             )
             pantryItemDao.insertPantryItem(entity)
+            
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -91,13 +101,24 @@ class PantryRepositoryImpl(
     
     override suspend fun updateItem(item: PantryItem): Result<Unit> {
         return try {
+            val now = System.currentTimeMillis()
+            
+            // First, ensure the product exists
+            val existingProduct = productDao.getProductById(item.product.id)
+            if (existingProduct == null) {
+                val productEntity = item.product.toEntity(createdAt = now)
+                productDao.insertProduct(productEntity)
+            }
+            
+            // Then update the pantry item
             val existing = pantryItemDao.getPantryItemById(item.id)
             val entity = item.toEntity(
-                createdAt = existing?.createdAt ?: System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis(),
+                createdAt = existing?.createdAt ?: now,
+                updatedAt = now,
                 syncStatus = "PENDING"
             )
             pantryItemDao.insertPantryItem(entity)
+            
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

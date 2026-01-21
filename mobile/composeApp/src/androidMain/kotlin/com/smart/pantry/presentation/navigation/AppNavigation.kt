@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import com.smart.pantry.presentation.nutrition.NutritionScreen
 import com.smart.pantry.presentation.scanner.ScannerScreen
 import com.smart.pantry.presentation.settings.SettingsScreen
-import com.smart.pantry.presentation.pantry.PantryScreen2
+import com.smart.pantry.presentation.pantry.PantryScreen
 
 /**
  * Navigation graph for the app
@@ -25,7 +25,7 @@ fun AppNavigation(
         modifier = modifier
     ) {
         composable(Screen.Pantry.route) {
-            PantryScreen2()
+            PantryScreen()
         }
         
         composable(Screen.Nutrition.route) {

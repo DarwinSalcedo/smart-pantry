@@ -29,6 +29,7 @@ class PantryViewModel(
     private val getPantryItemsByLocation: GetPantryItemsByLocationUseCase,
     private val getExpiringItems: GetExpiringItemsUseCase,
     private val getExpiredItems: GetExpiredItemsUseCase,
+    private val addPantryItem: AddPantryItemUseCase,
     private val updateItemQuantity: UpdateItemQuantityUseCase,
     private val deletePantryItem: DeletePantryItemUseCase
 ) : ViewModel() {
@@ -92,6 +93,18 @@ class PantryViewModel(
     fun deleteItem(itemId: String) {
         viewModelScope.launch {
             deletePantryItem(itemId)
+                .onFailure { error ->
+                    _uiState.update { it.copy(error = error.message) }
+                }
+        }
+    }
+    
+    fun addItem(item: PantryItem) {
+        viewModelScope.launch {
+            addPantryItem(item)
+                .onSuccess {
+                    // Item added successfully, data will refresh automatically via Flow
+                }
                 .onFailure { error ->
                     _uiState.update { it.copy(error = error.message) }
                 }

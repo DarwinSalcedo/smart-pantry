@@ -1,298 +1,173 @@
 package com.smart.pantry.presentation.pantry
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.smart.pantry.domain.model.ItemStatus
-import com.smart.pantry.domain.model.PantryItem
-import com.smart.pantry.domain.model.StorageLocation
+import com.smart.pantry.domain.model.*
+import com.smart.pantry.presentation.ui.components.*
+import com.smart.pantry.presentation.ui.theme.SmartPantryTheme
+import com.smart.pantry.presentation.ui.theme.Spacing
+import kotlinx.datetime.toLocalDateTime
 import org.koin.compose.koinInject
+import kotlin.uuid.Uuid
+import kotlin.time.Clock
+import kotlin.uuid.ExperimentalUuidApi
 
 /**
- * Main Pantry Screen
+ * Pantry screen with animated storage visualization
+ * Connected to PantryViewModel and PantryUiState
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
-fun PantryScreen(
-    viewModel: PantryViewModel = koinInject()
-) {
+fun PantryScreen(viewModel: PantryViewModel = koinInject()) {
     val uiState by viewModel.uiState.collectAsState()
+    var showAddItemSheet by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("My Pantry") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
-                )
+    SmartPantryTheme {
+        var selectedStorage by remember { mutableStateOf(StorageType.FRIDGE) }
+        
+        // Map domain StorageLocation to UI StorageType when selection changes
+        LaunchedEffect(selectedStorage) {
+            val domainLocation = when (selectedStorage) {
+                StorageType.FRIDGE -> StorageLocation.FRIDGE
+                StorageType.PANTRY -> StorageLocation.PANTRY
+                StorageType.FREEZER -> StorageLocation.FREEZER
+            }
+            viewModel.selectLocation(domainLocation)
+        }
+        
+        // Map domain items to UI items
+        val currentItems = viewModel.getCurrentItems().map { pantryItem ->
+            StorageItem(
+                id = pantryItem.id,
+                name = pantryItem.product.name,
+                status = when (pantryItem.status) {
+                    ItemStatus.FRESH -> com.smart.pantry.presentation.ui.components.ItemStatus.FRESH
+                    ItemStatus.EXPIRING_SOON -> com.smart.pantry.presentation.ui.components.ItemStatus.EXPIRING_SOON
+                    ItemStatus.EXPIRED -> com.smart.pantry.presentation.ui.components.ItemStatus.EXPIRED
+                },
+                type = when (pantryItem.location) {
+                    StorageLocation.FRIDGE -> StorageType.FRIDGE
+                    StorageLocation.PANTRY -> StorageType.PANTRY
+                    StorageLocation.FREEZER -> StorageType.FREEZER
+                },
+                expirationDate = formatDate(pantryItem.expirationDate)
             )
         }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-            // Location Tabs
-            LocationTabs(
-                selectedLocation = uiState.selectedLocation,
-                onLocationSelected = viewModel::selectLocation
-            )
-            
-            // Alerts Section
-            if (uiState.expiringItems.isNotEmpty() || uiState.expiredItems.isNotEmpty()) {
-                AlertsSection(
-                    expiringCount = uiState.expiringItems.size,
-                    expiredCount = uiState.expiredItems.size
+
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("SmartPantry") },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 )
-            }
-            
-            // Items List
-            if (uiState.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+            },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = { showAddItemSheet = true },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.size(64.dp)
                 ) {
-                    CircularProgressIndicator()
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Item",
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
-            } else {
-                val currentItems = viewModel.getCurrentItems()
-                if (currentItems.isEmpty()) {
-                    EmptyState(location = uiState.selectedLocation)
+            }
+        ) { paddingValues ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(Spacing.medium),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                if (uiState.isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 } else {
-                    ItemsList(
+                    StorageVisualization(
+                        selectedStorage = selectedStorage,
                         items = currentItems,
-                        onQuantityChange = viewModel::updateQuantity,
-                        onDelete = viewModel::deleteItem
+                        onStorageChange = { selectedStorage = it },
+                        modifier = Modifier.fillMaxSize()
                     )
                 }
             }
         }
         
-        // Error Snackbar
+        // Add Item Bottom Sheet
+        if (showAddItemSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showAddItemSheet = false },
+                sheetState = sheetState,
+               // windowInsets = WindowInsets(0, 0, 0, 0)
+            ) {
+                AddItemForm(
+                    onSave = { formData ->
+                        // Create PantryItem from form data
+                        val newItem = PantryItem(
+                            id = Uuid.random().toString(),
+                            userId = "current-user-id", // TODO: Get from auth
+                            product = Product(
+                                id = Uuid.random().toString(),
+                                name = formData.productName,
+                                category = formData.category,
+                                defaultShelfLifeDays = 7,
+                                barcode = null,
+                                imageUrl = null,
+                                nutritionInfo = null
+                            ),
+                            quantity = formData.quantity,
+                            unit = formData.unit,
+                            location = formData.location,
+                            purchaseDate = Clock.System.now().toEpochMilliseconds(),
+                            expirationDate = formData.expirationDate,
+                            notes = null,
+                            status = ItemStatus.fromExpirationDate(formData.expirationDate)
+                        )
+                        
+                        // Add item via ViewModel
+                        viewModel.addItem(newItem)
+                        
+                        showAddItemSheet = false
+                    },
+                    onCancel = { showAddItemSheet = false },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+        
+        // Show error if any
         uiState.error?.let { error ->
             LaunchedEffect(error) {
-                // Show snackbar
+                // TODO: Show snackbar with error
                 viewModel.clearError()
             }
         }
     }
 }
 
-@Composable
-fun LocationTabs(
-    selectedLocation: StorageLocation,
-    onLocationSelected: (StorageLocation) -> Unit
-) {
-    TabRow(
-        selectedTabIndex = selectedLocation.ordinal,
-        containerColor = MaterialTheme.colorScheme.surface
-    ) {
-        StorageLocation.entries.forEach { location ->
-            Tab(
-                selected = selectedLocation == location,
-                onClick = { onLocationSelected(location) },
-                text = { Text(location.name) },
-                icon = {
-                    Icon(
-                        imageVector = when (location) {
-                            StorageLocation.FRIDGE -> Icons.Default.Kitchen
-                            StorageLocation.PANTRY -> Icons.Default.Inventory
-                            StorageLocation.FREEZER -> Icons.Default.AcUnit
-                        },
-                        contentDescription = location.name
-                    )
-                }
-            )
-        }
-    }
-}
-
-@Composable
-fun AlertsSection(
-    expiringCount: Int,
-    expiredCount: Int
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-    ) {
-        if (expiredCount > 0) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.errorContainer
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Expired",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "$expiredCount item(s) expired",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                }
-            }
-        }
-        
-        if (expiringCount > 0) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Expiring Soon",
-                        tint = MaterialTheme.colorScheme.tertiary
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "$expiringCount item(s) expiring soon",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ItemsList(
-    items: List<PantryItem>,
-    onQuantityChange: (String, Int) -> Unit,
-    onDelete: (String) -> Unit
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(items, key = { it.id }) { item ->
-            PantryItemCard(
-                item = item,
-                onQuantityChange = { newQuantity ->
-                    onQuantityChange(item.id, newQuantity)
-                },
-                onDelete = { onDelete(item.id) }
-            )
-        }
-    }
-}
-
-@Composable
-fun PantryItemCard(
-    item: PantryItem,
-    onQuantityChange: (Int) -> Unit,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = when (item.status) {
-                ItemStatus.EXPIRED -> MaterialTheme.colorScheme.errorContainer
-                ItemStatus.EXPIRING_SOON -> MaterialTheme.colorScheme.tertiaryContainer
-                ItemStatus.FRESH -> MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = item.product.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "${item.quantity} ${item.unit.displayName}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Expires: ${formatDate(item.expirationDate)}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { onQuantityChange(item.quantity - 1) }) {
-                    Icon(Icons.Default.Remove, "Decrease")
-                }
-                IconButton(onClick = { onQuantityChange(item.quantity + 1) }) {
-                    Icon(Icons.Default.Add, "Increase")
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, "Delete")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun EmptyState(location: StorageLocation) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Inventory2,
-                contentDescription = "Empty",
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "No items in ${location.name.lowercase()}",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "Add items to get started",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
+/**
+ * Format timestamp to date string
+ */
 private fun formatDate(timestamp: Long): String {
-    val date = java.util.Date(timestamp)
-    val format = java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
-    return format.format(date)
+    val instant = kotlinx.datetime.Instant.fromEpochMilliseconds(timestamp)
+    val localDate = instant.toLocalDateTime(kotlinx.datetime.TimeZone.currentSystemDefault()).date
+    return "${localDate.year}-${localDate.monthNumber.toString().padStart(2, '0')}-${localDate.dayOfMonth.toString().padStart(2, '0')}"
 }

@@ -58,6 +58,9 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             
+            // Kotlinx DateTime
+            implementation(libs.kotlinx.datetime)
+            
             // Kotlinx Serialization
             implementation(libs.kotlinx.serialization.json)
             

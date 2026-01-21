@@ -15,6 +15,7 @@ val viewModelModule = module {
             getPantryItemsByLocation = get(),
             getExpiringItems = get(),
             getExpiredItems = get(),
+            addPantryItem = get(),
             updateItemQuantity = get(),
             deletePantryItem = get()
         )
